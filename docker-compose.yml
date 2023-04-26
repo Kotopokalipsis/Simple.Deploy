@@ -1,0 +1,47 @@
+version: '3.8'
+services:
+  identity-api:
+    build:
+      context: https://github.com/Kotopokalipsis/Simple.Authorization.git
+      dockerfile: ./src/Web/Dockerfile
+    container_name: "identity-api"
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Development
+    ports:
+      - "5001:80"
+    depends_on:
+      - identity-db
+    networks:
+      - app-network
+
+  identity-db:
+    image: postgres:15.2
+    restart: always
+    container_name: "identity-db"
+    ports:
+      - "5432:5432"
+    environment:
+      POSTGRES_DB: "Identity"
+      POSTGRES_USER: "postgres"
+      POSTGRES_PASSWORD: "root"
+    networks:
+      - app-network
+    volumes:
+      - db:/var/lib/postgresql/data
+
+  identity-adminer:
+    image: adminer
+    container_name: "identity-adminer"
+    restart: always
+    ports:
+      - 8080:8080
+    networks:
+      - app-network
+
+networks:
+  app-network:
+    driver: bridge
+
+volumes:
+  db:
+    driver: local
